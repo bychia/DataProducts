@@ -1,6 +1,4 @@
 library(datasets)
-library(plotGoogleMaps)
-library(sp)
 library(googleVis)
 library(shiny)
 library(caret)
@@ -57,20 +55,15 @@ newQuakes <- quakes[c(-3,-7)]
 inTrain <- createDataPartition(y=newQuakes$depthCategory, p=0.6, list=FALSE)
 myTraining <- newQuakes[inTrain,]
 myTesting <-  newQuakes[-inTrain,]
-modFitRF <- randomForest(depthCategory ~ lat + long + mag + stations , data=myTraining)
+#modFitRF <- randomForest(depthCategory ~ lat + long + mag + stations , data=myTraining)
 
-#coordinates(newQuakes) = ~ long + lat  
-#proj4string(newQuakes) = CRS("+proj=longlat")
 
 ### Magnitude Category
 newQuakes1 <- quakes[c(-4,-6)]
 inTrain <- createDataPartition(y=newQuakes1$magCategory, p=0.6, list=FALSE)
 myTraining1 <- newQuakes1[inTrain,]
 myTesting1 <-  newQuakes1[-inTrain,]
-modFitRF1 <- randomForest(magCategory ~ lat + long + depth + stations , data=myTraining1)
-
-#coordinates(newQuakes1) = ~ long + lat  
-#proj4string(newQuakes1) = CRS("+proj=longlat")
+#modFitRF1 <- randomForest(magCategory ~ lat + long + depth + stations , data=myTraining1)
 
 
 shinyServer(function(input, output) {
@@ -85,8 +78,10 @@ shinyServer(function(input, output) {
   
   prediction <- reactive({
     if(input$predResponse == 'depth'){
+      modFitRF <- randomForest(depthCategory ~ lat + long + mag + stations , data=myTraining)
       predict(modFitRF, data(), type = "class")
     }else if(input$predResponse == 'magnitude'){
+      modFitRF1 <- randomForest(magCategory ~ lat + long + depth + stations , data=myTraining1)
       predict(modFitRF1, data(), type = "class")
     }                    
   })
@@ -96,29 +91,40 @@ shinyServer(function(input, output) {
   })
   
   output$prediction <- renderText({
-    cat <- prediction()
-    if(input$predResponse == 'depth'){
-      paste("Predicted Depth Category:", cat, "(", depthCategoryFunc(cat), ")")
-    }else if(input$predResponse == 'magnitude'){
-      paste("Predicted Magnitude Category:", cat)
-    }   
+    ### Testing the progress widget
+      withProgress(message = 'Loading...', value = 0, {
+        n <- 2
+        incProgress(1/n, detail = paste("Running Prediction Model", 45))
+        cat <- prediction()
+        Sys.sleep(0.2)
+        
+        incProgress(2/n, detail = paste("Finished Prediction Model",100)) 
+        Sys.sleep(0.2)  
+        
+        if(input$predResponse == 'depth'){
+          paste("Predicted Depth Category:", cat, "(", depthCategoryFunc(cat), ")")
+        }else if(input$predResponse == 'magnitude'){
+          paste("Predicted Magnitude Category:", cat)
+        }
+      })
   })
   
   output$plot <- renderPlot({
-    if(input$predResponse == 'depth'){
-      p <- ggplot(data=newQuakes1, aes(x=lat,y=long,col=depth)) + geom_point() + scale_colour_gradientn(colours=rainbow(5))
-      p <- p + annotate("pointrange", x = input$Lat, y = input$Long, ymin=input$Long, ymax=input$Long, color="red", size = 1)
-      p + annotate("text", x = input$Lat, y = input$Long-1, label="Selected Location", color="red")
-    }else if(input$predResponse == 'magnitude'){
-      p <- ggplot(data=newQuakes, aes(x=lat,y=long,col=mag)) + geom_point() 
-      p <- p + annotate("pointrange", x = input$Lat, y = input$Long, ymin=input$Long, ymax=input$Long, color="red", size = 1)
-      p + annotate("text", x = input$Lat, y = input$Long-1, label="Selected Location", color="red")
-    }
+      if(input$predResponse == 'depth'){
+        p <- ggplot(data=newQuakes1, aes(x=long,y=lat,col=depth)) + geom_point() + scale_colour_gradientn(colours=rainbow(5))
+        p <- p + annotate("pointrange", x = input$Long, y = input$Lat, ymin=input$Lat, ymax=input$Lat, color="red", size = 1)
+        p + annotate("text", x = input$Long, y = input$Lat-1, label="Selected Location", color="red")
+      }else if(input$predResponse == 'magnitude'){
+        p <- ggplot(data=newQuakes, aes(x=lat,y=long,col=mag)) + geom_point() 
+        p <- p + annotate("pointrange", x = input$Long, y = input$Lat, ymin=input$Lat, ymax=input$Lat, color="red", size = 1)
+        p + annotate("text", x = input$Long, y = input$Lat-1, label="Selected Location", color="red")
+      }
   })
   
   output$gvis <- renderGvis({
-    if(input$predResponse == 'depth'){
-      gvisMap(newQuakes1, "latlong" , "tip", 
+    if(input$goPredict > 0 && input$googleMapCheck == TRUE){
+      if(input$predResponse == 'depth'){
+        gvisMap(newQuakes1, "latlong" , "tip", 
               options=list(showTip=TRUE, 
                            showLine=TRUE, 
                            enableScrollWheel=TRUE,
@@ -126,14 +132,29 @@ shinyServer(function(input, output) {
                            useMapTypeControl=TRUE,
                            width=400,height=500))
       
-    }else if(input$predResponse == 'magnitude'){
-      gvisMap(newQuakes, "latlong" , "tip1", 
+      }else if(input$predResponse == 'magnitude'){
+        gvisMap(newQuakes, "latlong" , "tip1", 
               options=list(showTip=TRUE, 
                            showLine=TRUE, 
                            enableScrollWheel=TRUE,
                            mapType='satellite', 
                            useMapTypeControl=TRUE,
                            width=400,height=500))
-    } 
+      } 
+    }
   })
+  
+  output$explanation <- renderText({
+    "<p>This application allows you to predict the magnitude / depth of the earthquake in the Fiji region.<br />
+ The dataset is obtained from quakes which is available in r {datasets}. The data describes the earthquake events which occurred near Fiji since 1964.<br />
+ <br />
+The  controls allow you to obtain the following info:<br />
+1. Predictive Response: Quake Depth / Magnitude returns a predicted quake depth / magnitude of the earthquake in the given lat/long.<br />
+2. Display with Google map: Returns google map showing all the locations from quakes {datasets}.<br />
+3. Latitude: Predict earthquake at this given lat.<br />
+4. Longtitude: Predict earthquake at this given long.<br />
+5. Magnitude of Quake: Predict earthquake with this magnitude.<br />
+6. Depth of Quake: Predict earthquake with this depth<br />
+7. Number of stations reported: Number of stations reported in this {datasets}<br /><br />
+</p>"})
 })

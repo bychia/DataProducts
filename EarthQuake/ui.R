@@ -1,14 +1,15 @@
 require(shiny)
  
 shinyUI(pageWithSidebar(
-  headerPanel("EarthQuake Depth & Magnitude Prediction"),
+  headerPanel("EarthQuakes(Fiji) Depth & Magnitude Prediction"),
   sidebarPanel(
     wellPanel(
       selectInput(inputId = "predResponse",label = "Select Predictive Response:", 
                   choices = c("Quake Depth" = "depth",
                               "Quake Magnitude" = "magnitude"),
                   selected = "depth"
-      )
+      ),
+      checkboxInput("googleMapCheck", label="Display with Google map", value=FALSE)
     ),
     
     wellPanel(
@@ -26,20 +27,33 @@ shinyUI(pageWithSidebar(
     
       sliderInput("Stations", "Number of station reported", 
                 min=1, max=150, value=70,  step=1, round=FALSE, animate=TRUE)
-    )
+    ),
+    
+    actionButton('goPredict', 'Predict')
   ),
   mainPanel(
+    htmlOutput("explanation"),
+    
     conditionalPanel(
-     condition = "input.predResponse=='depth'",
-     h2("Predicting EarthQuake Depth Category")
+      condition = "input.goPredict==0",
+      em("Please click on the Predict button to start...")
     ),
+    
     conditionalPanel(
-      condition = "input.predResponse=='magnitude'",
-      h2("Predicting EarthQuake Magnitude Category")
+      condition = "input.goPredict>0",
+      conditionalPanel(
+        condition = "input.predResponse=='depth'",
+        h4("Predicting EarthQuake Depth Category")
+      ),
+      conditionalPanel(
+        condition = "input.predResponse=='magnitude'",
+        h4("Predicting EarthQuake Magnitude Category")
+      ),
+      h5(htmlOutput("detail")),
+      h5(textOutput("prediction")),
+      plotOutput("plot")
     ),
-    h4(htmlOutput("detail")),
-    h4(textOutput("prediction")),
-    plotOutput("plot"),
+    
     htmlOutput("gvis")
   )
 )
