@@ -115,7 +115,7 @@ shinyServer(function(input, output) {
         p <- p + annotate("pointrange", x = input$Long, y = input$Lat, ymin=input$Lat, ymax=input$Lat, color="red", size = 1)
         p + annotate("text", x = input$Long, y = input$Lat-1, label="Selected Location", color="red")
       }else if(input$predResponse == 'magnitude'){
-        p <- ggplot(data=newQuakes, aes(x=lat,y=long,col=mag)) + geom_point() 
+        p <- ggplot(data=newQuakes, aes(x=long,y=lat,col=mag)) + geom_point() 
         p <- p + annotate("pointrange", x = input$Long, y = input$Lat, ymin=input$Lat, ymax=input$Lat, color="red", size = 1)
         p + annotate("text", x = input$Long, y = input$Lat-1, label="Selected Location", color="red")
       }
