@@ -1,0 +1,59 @@
+EarthQuake Prediction
+========================================================
+<br><br>
+Author: BY Chia  
+Date: `r format(Sys.Date(), format="%B %d %Y")`
+
+<small>
+Coursera Data Science  
+Developing Data Products
+<b>ShinyApp Project</b>
+</small>
+***
+<br>
+![alt text](shinyapp1.png)
+
+
+ShinyApp Idea
+========================================================
+
+The idea allows users to predict the magnitude / depth of a predicted earthquake in the Fiji region.  
+  
+The dataset is obtained from **quakes** which is available in ***{datasets}*** package. The data describes the earthquake events which occurred near Fiji since 1964.
+<small>
+```{r echo=FALSE}
+str(quakes)
+```
+</small>
+
+
+ShinyApp Controls
+========================================================
+The  controls allow you to predict based on :
+<small>
+- Predictive Response: Quake Depth / Magnitude returns a predicted quake depth / magnitude of the earthquake in the given lat/long.<br />
+- Display with Google map: Returns google map showing all the locations from ***quakes datasets***.<br />
+- Latitude: Predict earthquake at this given lat.<br />
+- Longtitude: Predict earthquake at this given long.<br />
+- Magnitude of Quake: Predict earthquake with this magnitude.<br />
+- Depth of Quake: Predict earthquake with this depth.<br />
+- Number of stations reported<br />
+</small>
+
+
+EarthQuake sites by Depth (km)
+========================================================
+```{r, echo=FALSE}
+library(datasets)
+library(ggplot2)
+```
+
+```{r echo=FALSE,fig=TRUE,fig.width=16,fig.height=10}
+ggplot(data=quakes, aes(x=long,y=lat,col=depth)) + geom_point(size=4) + scale_colour_gradientn(colours=rainbow(5))
+```
+
+EarthQuake sites by Magnitude
+===
+```{r echo=FALSE,fig=TRUE,fig.width=16,fig.height=10}
+ggplot(data=quakes, aes(x=long,y=lat,col=mag)) + geom_point(size=4) 
+```
