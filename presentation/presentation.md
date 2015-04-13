@@ -2,13 +2,15 @@ EarthQuake Prediction
 ========================================================
 <br><br>
 Author: BY Chia  
-Date: April 12 2015
+Date: April 13 2015
 
 <small>
 Coursera Data Science  
-Developing Data Products
-<b>ShinyApp Project</b>
+Developing Data Products<br/><br/>
+<b><a href="https://bychia.shinyapps.io/EarthQuake/">Click for ShinyApp Project</a></b>
+<br/>
 </small>
+
 ***
 <br>
 ![alt text](shinyapp1.png)
