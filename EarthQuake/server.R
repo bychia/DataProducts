@@ -143,18 +143,5 @@ shinyServer(function(input, output) {
       } 
     }
   })
-  
-  output$explanation <- renderText({
-    "<p>This application allows you to predict the magnitude / depth of the earthquake in the Fiji region.<br />
- The dataset is obtained from quakes which is available in r {datasets}. The data describes the earthquake events which occurred near Fiji since 1964.<br />
- <br />
-The  controls allow you to obtain the following info:<br />
-1. Predictive Response: Quake Depth / Magnitude returns a predicted quake depth / magnitude of the earthquake in the given lat/long.<br />
-2. Display with Google map: Returns google map showing all the locations from quakes {datasets}.<br />
-3. Latitude: Predict earthquake at this given lat.<br />
-4. Longtitude: Predict earthquake at this given long.<br />
-5. Magnitude of Quake: Predict earthquake with this magnitude.<br />
-6. Depth of Quake: Predict earthquake with this depth<br />
-7. Number of stations reported: Number of stations reported in this {datasets}<br /><br />
-</p>"})
+
 })
