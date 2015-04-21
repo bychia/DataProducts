@@ -23,7 +23,7 @@ The idea allows users to predict the magnitude / depth of a predicted earthquake
   
 The dataset is obtained from **quakes** which is available in ***{datasets}*** package. The data describes the earthquake events which occurred near Fiji since 1964.
 <small>
-```{r echo=FALSE}
+```{r}
 str(quakes)
 ```
 </small>

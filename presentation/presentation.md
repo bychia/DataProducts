@@ -2,7 +2,7 @@ EarthQuake Prediction
 ========================================================
 <br><br>
 Author: BY Chia  
-Date: April 13 2015
+Date: April 21 2015
 
 <small>
 Coursera Data Science  
@@ -23,6 +23,10 @@ The idea allows users to predict the magnitude / depth of a predicted earthquake
   
 The dataset is obtained from **quakes** which is available in ***{datasets}*** package. The data describes the earthquake events which occurred near Fiji since 1964.
 <small>
+
+```r
+str(quakes)
+```
 
 ```
 'data.frame':	1000 obs. of  5 variables:
